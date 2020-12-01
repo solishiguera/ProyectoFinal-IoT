@@ -32,11 +32,11 @@ void setup() {
 
 void loop() {
   int *lightValue;
-  int temp = calculaLumens(); 
+  int temp = calculaLumens();  
   lightValue = &temp;  
 
   // Almacena datos en base de datos
-  Firebase.setInt("Light",*lightValue);
+  Firebase.push("Light",*lightValue); // Cambié a push
   Serial.print("Light value:  ");
   Serial.println(*lightValue);
 
@@ -44,21 +44,36 @@ void loop() {
       Serial.println("Disconnected");
   }
 
-  // Cuando detecte menos de 150 lumens, enciende el LED
-  if(*lightValue > 150) { 
+  // Verifica que la cantidad de lumens es menor a 150
+  if(*lightValue <= 150) {
+    cont ++;
+  } else {
+    cont = 0; 
+  }
+
+  Serial.print("Contador:  ");
+  Serial.println(cont);
+
+  // Cuando detecte que el contador es mayor a 5, se enciende LED
+  // Esto se hace con la intención de evitar que se encienda y apague continuamente la luz, 
+  // Y después de estar debajo de 150 lumens en 5 iteraciones seguidas, se enciende LED
+  if(cont >= 5) { 
     digitalWrite(led, HIGH);
-    Firebase.setInt("LEDStatus", 0);
+    Firebase.push("LEDStatus", 0);
   } else {
     digitalWrite(led, LOW);
-    Firebase.setInt("LEDStatus", 1);
+    Firebase.push("LEDStatus", 1);
   }
+
+  delay(100);
 }
 
 
 int calculaLumens() {
   /* Esta función permite calcular la cantidad de lumens que emite una fuente de luz*/
-  // MY light bulb emits 800 Lumens
-  float value = (analogRead(A0) * -1) + 1024;
+  // El foco de mi lámpara emite 800 Lumens. 
+  //float value = (analogRead(A0) * -1) + 1024;
+  float value = analogRead(A0); 
   value *= 1.075; 
   return value; 
 }
