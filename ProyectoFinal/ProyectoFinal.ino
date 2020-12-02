@@ -5,11 +5,11 @@
 
 #define WIFI_SSID "InterCable97649063"
 #define WIFI_PASSWORD "m78719ce82802"
-#define FIREBASE_HOST "proyectocincoiot.firebaseio.com"
-#define FIREBASE_AUTH "sNcrGfwNxSYsmtBC6XC9z1U0u7SWLAu6k24V4cfj"
+//#define FIREBASE_HOST "proyectocincoiot.firebaseio.com"
+//#define FIREBASE_AUTH "sNcrGfwNxSYsmtBC6XC9z1U0u7SWLAu6k24V4cfj"
 
-//#define FIREBASE_HOST "testingpushdiego.firebaseio.com"
-//#define FIREBASE_AUTH "cUUQrHZ2F1AslFmT0TPnZ8LmjWYorDctnggA0y88"
+#define FIREBASE_HOST "equipocinco-iot.firebaseio.com"
+#define FIREBASE_AUTH "raudNa2ruFLutcPY7ew52GAgCQQeWuZtFDAGlwr1"
 
 #define LDR A0 // Mide luz
 #define led D1 // Conectado a NODEMCU
@@ -42,27 +42,7 @@ void loop() {
   
   // Almacena datos en base de datos
   if(*lightValue != anterior) {
-    if(contador == 0){
-      Firebase.setInt("E0/Luz_Diego",*lightValue);
-      ++contador;
-    }
-    else if(contador == 1){
-      Firebase.setInt("E1/Luz_Diego",*lightValue);
-      ++contador;
-    }
-    else if(contador == 2){
-      Firebase.setInt("E2/Luz_Diego",*lightValue);
-      ++contador;
-    }
-    else if(contador == 3){
-      Firebase.setInt("E3/Luz_Diego",*lightValue);
-      ++contador;
-    }
-    else if(contador == 4){
-      Firebase.setInt("E4/Luz_Diego",*lightValue);
-      contador = 0;
-    }
-    //Firebase.push("Luz",*lightValue); // Cambié a push
+    Firebase.setInt("Luz_Diego",*lightValue); // Cambié a push
     Serial.print("Light value:  ");
     Serial.println(*lightValue);
   }
@@ -83,8 +63,10 @@ void loop() {
   // Y después de estar debajo de 150 lumens en 5 iteraciones seguidas, se enciende LED
   if(cont >= 5) { 
     digitalWrite(led, HIGH);
+    Firebase.setInt("LED_Diego",1);
   } else {
     digitalWrite(led, LOW);
+    Firebase.setInt("LED_Diego",0);
   }
 
   anterior = temp; 
