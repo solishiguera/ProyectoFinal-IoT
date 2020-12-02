@@ -5,15 +5,16 @@
 
 #define WIFI_SSID "InterCable97649063"
 #define WIFI_PASSWORD "m78719ce82802"
-//#define FIREBASE_HOST "proyectocincoiot.firebaseio.com"
-//#define FIREBASE_AUTH "sNcrGfwNxSYsmtBC6XC9z1U0u7SWLAu6k24V4cfj"
+#define FIREBASE_HOST "proyectocincoiot.firebaseio.com"
+#define FIREBASE_AUTH "sNcrGfwNxSYsmtBC6XC9z1U0u7SWLAu6k24V4cfj"
 
-#define FIREBASE_HOST "testingpushdiego.firebaseio.com"
-#define FIREBASE_AUTH "cUUQrHZ2F1AslFmT0TPnZ8LmjWYorDctnggA0y88"
+//#define FIREBASE_HOST "testingpushdiego.firebaseio.com"
+//#define FIREBASE_AUTH "cUUQrHZ2F1AslFmT0TPnZ8LmjWYorDctnggA0y88"
 
 #define LDR A0 // Mide luz
 #define led D1 // Conectado a NODEMCU
 int cont = 0; 
+int contador = 0;
 int anterior = 0; 
 
 void setup() {
@@ -41,11 +42,30 @@ void loop() {
   
   // Almacena datos en base de datos
   if(*lightValue != anterior) {
-    Firebase.push("Luz",*lightValue); // Cambié a push
+    if(contador == 0){
+      Firebase.setInt("E0/Luz_Diego",*lightValue);
+      ++contador;
+    }
+    else if(contador == 1){
+      Firebase.setInt("E1/Luz_Diego",*lightValue);
+      ++contador;
+    }
+    else if(contador == 2){
+      Firebase.setInt("E2/Luz_Diego",*lightValue);
+      ++contador;
+    }
+    else if(contador == 3){
+      Firebase.setInt("E3/Luz_Diego",*lightValue);
+      ++contador;
+    }
+    else if(contador == 4){
+      Firebase.setInt("E4/Luz_Diego",*lightValue);
+      contador = 0;
+    }
+    //Firebase.push("Luz",*lightValue); // Cambié a push
     Serial.print("Light value:  ");
     Serial.println(*lightValue);
   }
-  
 
   if(WiFi.status() != WL_CONNECTED) {
       Serial.println("Disconnected");
@@ -57,28 +77,24 @@ void loop() {
   } else {
     cont = 0; 
   }
-
-  Serial.print("Contador:  ");
-  Serial.println(cont);
-
+  
   // Cuando detecte que el contador es mayor a 5, se enciende LED
   // Esto se hace con la intención de evitar que se encienda y apague continuamente la luz, 
   // Y después de estar debajo de 150 lumens en 5 iteraciones seguidas, se enciende LED
-  if(cont >= 20) { 
+  if(cont >= 5) { 
     digitalWrite(led, HIGH);
-    Firebase.push("LED", 0);
   } else {
     digitalWrite(led, LOW);
-    Firebase.push("LED", 1);
   }
 
   anterior = temp; 
-  delay(300);
+  delay(100);
 }
 
 
 int calculaLumens() {
-  /* Esta función permite calcular la cantidad de lumens que emite una fuente de luz*/
+  /* Esta función permite calcular la cantidad
+  de lumens que emite una fuente de luz*/
   // El foco de mi lámpara emite 800 Lumens. 
   //float value = (analogRead(A0) * -1) + 1024;
   float value = analogRead(A0); 
