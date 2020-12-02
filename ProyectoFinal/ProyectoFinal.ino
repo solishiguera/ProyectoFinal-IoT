@@ -11,6 +11,7 @@
 #define LDR A0 // Mide luz
 #define led D1 // Conectado a NODEMCU
 int cont = 0; 
+int anterior = 0; 
 
 void setup() {
   Serial.begin(9600);
@@ -34,11 +35,14 @@ void loop() {
   int *lightValue;
   int temp = calculaLumens();  
   lightValue = &temp;  
-
+  
   // Almacena datos en base de datos
-  Firebase.push("Light",*lightValue); // Cambié a push
-  Serial.print("Light value:  ");
-  Serial.println(*lightValue);
+  if(*lightValue != anterior) {
+    //Firebase.setInt("Light",*lightValue); // Cambié a push
+    Serial.print("Light value:  ");
+    Serial.println(*lightValue);
+  }
+  
 
   if(WiFi.status() != WL_CONNECTED) {
       Serial.println("Disconnected");
@@ -57,14 +61,15 @@ void loop() {
   // Cuando detecte que el contador es mayor a 5, se enciende LED
   // Esto se hace con la intención de evitar que se encienda y apague continuamente la luz, 
   // Y después de estar debajo de 150 lumens en 5 iteraciones seguidas, se enciende LED
-  if(cont >= 5) { 
+  if(cont >= 20) { 
     digitalWrite(led, HIGH);
-    Firebase.push("LEDStatus", 0);
+    //Firebase.setInt("LEDStatus", 0);
   } else {
     digitalWrite(led, LOW);
-    Firebase.push("LEDStatus", 1);
+    //Firebase.setInt("LEDStatus", 1);
   }
 
+  anterior = temp; 
   delay(100);
 }
 
